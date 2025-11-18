@@ -76,7 +76,7 @@ fn count_markdown_words(text: &str) -> usize {
             // Check if it's followed by (url)
             if found_closing && chars.peek() == Some(&'(') {
                 chars.next(); // consume '('
-                              // Skip until closing ')'
+                // Skip until closing ')'
                 for c in chars.by_ref() {
                     if c == ')' {
                         break;

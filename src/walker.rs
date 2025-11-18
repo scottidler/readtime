@@ -64,13 +64,13 @@ pub fn process_path<P: AsRef<Path>>(path: P, extensions: &[String], words_per_mi
             let file_path = entry.path();
 
             // Check if file has matching extension
-            if let Some(ext) = file_path.extension().and_then(|e| e.to_str()) {
-                if extensions_set.contains(ext) {
-                    match process_file(file_path, words_per_minute) {
-                        Ok(file_info) => results.push(file_info),
-                        Err(e) => {
-                            log::warn!("Failed to process {}: {}", file_path.display(), e);
-                        }
+            if let Some(ext) = file_path.extension().and_then(|e| e.to_str())
+                && extensions_set.contains(ext)
+            {
+                match process_file(file_path, words_per_minute) {
+                    Ok(file_info) => results.push(file_info),
+                    Err(e) => {
+                        log::warn!("Failed to process {}: {}", file_path.display(), e);
                     }
                 }
             }
