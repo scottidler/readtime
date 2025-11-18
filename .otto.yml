@@ -1,0 +1,71 @@
+otto:
+  api: 1
+  jobs: 4
+  tasks:
+    - build
+
+tasks:
+  fmt:
+    help: Format code with cargo fmt
+    bash: |
+      cargo fmt
+
+  fmt-check:
+    help: Check code formatting without changes
+    bash: |
+      cargo fmt --check
+
+  clippy:
+    help: Run clippy linter with warnings as errors
+    bash: |
+      cargo clippy -- -D warnings
+
+  test:
+    help: Run all tests
+    bash: |
+      cargo test
+
+  build:
+    help: Build release binary
+    bash: |
+      cargo build --release
+
+  check:
+    help: Quick compile check without codegen
+    bash: |
+      cargo check
+
+  clean:
+    help: Clean build artifacts
+    bash: |
+      cargo clean
+      rm -rf target/
+
+  ci:
+    help: Run CI checks (fmt, clippy, test)
+    before:
+      - fmt-check
+      - clippy
+      - test
+    bash: |
+      echo "✅ All CI checks passed!"
+
+  all:
+    help: Run all checks and build release
+    before:
+      - fmt-check
+      - clippy
+      - test
+      - build
+    bash: |
+      echo "✅ All tasks completed!"
+      echo "Binary: target/release/readtime"
+
+  install:
+    help: Install binary to ~/.cargo/bin
+    before:
+      - build
+    bash: |
+      cargo install --path .
+      echo "✅ Installed to ~/.cargo/bin/readtime"
+
