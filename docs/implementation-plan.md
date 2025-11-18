@@ -23,7 +23,7 @@ Based on research, the average adult reading speed is approximately **200-250 wo
 - Single file mode: Process one file
 - Directory mode: Recursively walk directory tree
 - Filter by file extensions
-- Default extensions: `.md`, `.txt`, `.rst`, `.adoc`, `.org`
+- Default extensions: `.md`, `.txt`
 - Exclude programming files by default (`.py`, `.ts`, `.js`, `.rs`, etc.)
 - Allow user to specify custom extensions
 
@@ -105,7 +105,7 @@ readtime [OPTIONS] <PATH>
 
 ### Options
 - `-w, --wpm <wpm>` - Words per minute (default: 200)
-- `-e, --extensions <ext>...` - File extensions to include (default: md,txt,rst,adoc,org)
+- `-e, --extensions <ext>...` - File extensions to include (default: md,txt)
 - `--add-extensions <ext>...` - Add extensions to default list
 - `-c, --config <path>` - Path to config file
 - `-v, --verbose` - Enable verbose output
@@ -124,8 +124,8 @@ readtime --wpm 250 docs/
 # Custom extensions
 readtime --extensions md,txt,rst documentation/
 
-# Add extensions to default
-readtime --add-extensions tex,latex academic/
+# Add extensions to default (e.g., add AsciiDoc)
+readtime --add-extensions adoc academic/
 
 # Verbose mode
 readtime -v docs/
@@ -236,9 +236,6 @@ wpm: 200
 extensions:
   - md
   - txt
-  - rst
-  - adoc
-  - org
 
 # Whether to include hidden files
 include_hidden: false

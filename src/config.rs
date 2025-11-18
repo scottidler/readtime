@@ -6,17 +6,15 @@ use std::path::{Path, PathBuf};
 #[derive(Debug, Deserialize, Serialize)]
 #[serde(default)]
 pub struct Config {
-    pub name: String,
-    pub age: u32,
-    pub debug: bool,
+    pub wpm: usize,
+    pub extensions: Vec<String>,
 }
 
 impl Default for Config {
     fn default() -> Self {
         Self {
-            name: "John Doe".to_string(),
-            age: 30,
-            debug: false,
+            wpm: 200,
+            extensions: vec!["md".to_string(), "txt".to_string()],
         }
     }
 }
@@ -26,8 +24,7 @@ impl Config {
     pub fn load(config_path: Option<&PathBuf>) -> Result<Self> {
         // If explicit config path provided, try to load it
         if let Some(path) = config_path {
-            return Self::load_from_file(path)
-                .context(format!("Failed to load config from {}", path.display()));
+            return Self::load_from_file(path).context(format!("Failed to load config from {}", path.display()));
         }
 
         // Try primary location: ~/.config/<project>/<project>.yml
@@ -62,15 +59,11 @@ impl Config {
     }
 
     fn load_from_file<P: AsRef<Path>>(path: P) -> Result<Self> {
-        let content = fs::read_to_string(&path)
-            .context("Failed to read config file")?;
+        let content = fs::read_to_string(&path).context("Failed to read config file")?;
 
-        let config: Self = serde_yaml::from_str(&content)
-            .context("Failed to parse config file")?;
+        let config: Self = serde_yaml::from_str(&content).context("Failed to parse config file")?;
 
         log::info!("Loaded config from: {}", path.as_ref().display());
         Ok(config)
     }
-
-
 }
