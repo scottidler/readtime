@@ -14,7 +14,11 @@ pub struct FileInfo {
 }
 
 /// Process a single file or directory
-pub fn process_path<P: AsRef<Path>>(path: P, extensions: &[String], words_per_minute: usize) -> Result<Vec<FileInfo>> {
+pub fn process_path<P: AsRef<Path>>(
+    path: P,
+    extensions: &[String],
+    words_per_minute: usize,
+) -> Result<Vec<FileInfo>> {
     let path = path.as_ref();
 
     if !path.exists() {
@@ -47,14 +51,21 @@ pub fn process_path<P: AsRef<Path>>(path: P, extensions: &[String], words_per_mi
         // Process directory recursively
         let mut results = Vec::new();
 
-        for entry in WalkDir::new(path).follow_links(false).into_iter().filter_entry(|e| {
-            // Skip hidden files and directories (but not the root)
-            if e.depth() == 0 {
-                true
-            } else {
-                !e.file_name().to_str().map(|s| s.starts_with('.')).unwrap_or(false)
-            }
-        }) {
+        for entry in WalkDir::new(path)
+            .follow_links(false)
+            .into_iter()
+            .filter_entry(|e| {
+                // Skip hidden files and directories (but not the root)
+                if e.depth() == 0 {
+                    true
+                } else {
+                    !e.file_name()
+                        .to_str()
+                        .map(|s| s.starts_with('.'))
+                        .unwrap_or(false)
+                }
+            })
+        {
             let entry = entry.wrap_err("Failed to read directory entry")?;
 
             if !entry.file_type().is_file() {
@@ -88,8 +99,8 @@ pub fn process_path<P: AsRef<Path>>(path: P, extensions: &[String], words_per_mi
 fn process_file<P: AsRef<Path>>(path: P, words_per_minute: usize) -> Result<FileInfo> {
     let path = path.as_ref();
 
-    let word_count =
-        counter::count_words(path).wrap_err_with(|| format!("Failed to count words in {}", path.display()))?;
+    let word_count = counter::count_words(path)
+        .wrap_err_with(|| format!("Failed to count words in {}", path.display()))?;
 
     let read_time_minutes = estimator::estimate_reading_time(word_count, words_per_minute);
 

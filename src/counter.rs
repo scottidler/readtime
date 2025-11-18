@@ -5,7 +5,8 @@ use std::path::Path;
 /// Count words in a text file
 pub fn count_words<P: AsRef<Path>>(path: P) -> Result<usize> {
     let path = path.as_ref();
-    let content = fs::read_to_string(path).wrap_err_with(|| format!("Failed to read file: {}", path.display()))?;
+    let content = fs::read_to_string(path)
+        .wrap_err_with(|| format!("Failed to read file: {}", path.display()))?;
 
     // Detect if this looks like markdown and strip formatting if so
     let is_markdown = path
@@ -175,6 +176,10 @@ Final paragraph."#;
         let word_count = count_markdown_words(text);
         // Should count: Title, Some, introduction, text, Section, Here, is, a, link, and, some, Final, paragraph
         // = 13 words (excluding code block and inline code)
-        assert!(word_count >= 10 && word_count <= 15, "Word count was {}", word_count);
+        assert!(
+            word_count >= 10 && word_count <= 15,
+            "Word count was {}",
+            word_count
+        );
     }
 }

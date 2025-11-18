@@ -61,7 +61,11 @@ fn run_application(cli: &Cli, config: &Config) -> Result<()> {
     };
 
     // Determine paths to process (default to current directory)
-    let paths: Vec<PathBuf> = if cli.paths.is_empty() { vec![PathBuf::from(".")] } else { cli.paths.clone() };
+    let paths: Vec<PathBuf> = if cli.paths.is_empty() {
+        vec![PathBuf::from(".")]
+    } else {
+        cli.paths.clone()
+    };
 
     if cli.verbose {
         println!("{} Processing: {:?}", "→".cyan(), paths);
@@ -98,7 +102,11 @@ fn run_application(cli: &Cli, config: &Config) -> Result<()> {
     } else {
         // Multiple paths: show separate tree for each
         for path in &paths {
-            let path_files: Vec<_> = all_files.iter().filter(|f| f.path.starts_with(path)).cloned().collect();
+            let path_files: Vec<_> = all_files
+                .iter()
+                .filter(|f| f.path.starts_with(path))
+                .cloned()
+                .collect();
 
             if !path_files.is_empty() {
                 let tree = tree::build_tree(&path_files, path);

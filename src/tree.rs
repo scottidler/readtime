@@ -27,7 +27,9 @@ impl Node {
 
     pub fn read_time(&self) -> usize {
         match self {
-            Node::File { read_time_minutes, .. } => *read_time_minutes,
+            Node::File {
+                read_time_minutes, ..
+            } => *read_time_minutes,
             Node::Directory {
                 total_read_time_minutes,
                 ..
@@ -64,7 +66,10 @@ pub fn build_tree(files: &[FileInfo], base_path: &Path) -> Node {
             // Get the immediate child under base_path
             if let Some(first_component) = relative.components().next() {
                 current_path.push(first_component);
-                root_children.entry(current_path).or_default().push(file.clone());
+                root_children
+                    .entry(current_path)
+                    .or_default()
+                    .push(file.clone());
             }
         }
     }
@@ -122,7 +127,10 @@ pub fn render_tree(node: &Node, base_name: Option<&str>) -> String {
             read_time_minutes,
         } => {
             let display_name = base_name.unwrap_or(name);
-            output.push_str(&format!("{:50} {:>6} min\n", display_name, read_time_minutes));
+            output.push_str(&format!(
+                "{:50} {:>6} min\n",
+                display_name, read_time_minutes
+            ));
         }
         Node::Directory {
             name,

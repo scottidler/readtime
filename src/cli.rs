@@ -14,7 +14,12 @@ pub struct Cli {
     pub paths: Vec<PathBuf>,
 
     /// Words per minute reading speed
-    #[arg(short, long, default_value = "200", help = "Words per minute reading speed")]
+    #[arg(
+        short,
+        long,
+        default_value = "200",
+        help = "Words per minute reading speed"
+    )]
     pub wpm: usize,
 
     /// File extensions to include (replaces defaults)
