@@ -1,5 +1,6 @@
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
+use unicode_width::UnicodeWidthStr;
 
 use crate::walker::FileInfo;
 
@@ -140,9 +141,12 @@ pub fn render_tree(node: &Node, base_name: Option<&str>) -> String {
             let display_name = base_name.unwrap_or(name);
             output.push_str(&format!("{}/\n", display_name));
 
+            // Calculate max width needed for alignment
+            let max_width = calculate_max_width(node, "");
+
             for (i, child) in children.iter().enumerate() {
                 let is_last = i == children.len() - 1;
-                render_node(child, "", is_last, &mut output);
+                render_node(child, "", is_last, max_width, &mut output);
             }
 
             output.push_str(&format!("\nTotal: {} min\n", total_read_time_minutes));
@@ -152,7 +156,33 @@ pub fn render_tree(node: &Node, base_name: Option<&str>) -> String {
     output
 }
 
-fn render_node(node: &Node, prefix: &str, is_last: bool, output: &mut String) {
+/// Calculate the maximum width needed for proper alignment
+fn calculate_max_width(node: &Node, prefix: &str) -> usize {
+    let connector = "├── "; // Use the same connector for consistency
+
+    match node {
+        Node::File { name, .. } => {
+            let line = format!("{}{}{}", prefix, connector, name);
+            line.width()
+        }
+        Node::Directory { name, children, .. } => {
+            let line = format!("{}{}{}/", prefix, connector, name);
+            let dir_width = line.width();
+            let extension = "│   ";
+            let new_prefix = format!("{}{}", prefix, extension);
+
+            let child_max = children
+                .iter()
+                .map(|child| calculate_max_width(child, &new_prefix))
+                .max()
+                .unwrap_or(0);
+
+            dir_width.max(child_max)
+        }
+    }
+}
+
+fn render_node(node: &Node, prefix: &str, is_last: bool, max_width: usize, output: &mut String) {
     let connector = if is_last { "└── " } else { "├── " };
     let extension = if is_last { "    " } else { "│   " };
 
@@ -161,9 +191,18 @@ fn render_node(node: &Node, prefix: &str, is_last: bool, output: &mut String) {
             name,
             read_time_minutes,
         } => {
+            let line = format!("{}{}{}", prefix, connector, name);
+            let line_width = line.width();
+            let padding = if line_width < max_width {
+                max_width - line_width
+            } else {
+                1 // At least 1 space
+            };
             output.push_str(&format!(
-                "{}{}{:40} {:>6} min\n",
-                prefix, connector, name, read_time_minutes
+                "{}{} {:>6} min\n",
+                line,
+                " ".repeat(padding),
+                read_time_minutes
             ));
         }
         Node::Directory {
@@ -171,18 +210,24 @@ fn render_node(node: &Node, prefix: &str, is_last: bool, output: &mut String) {
             children,
             total_read_time_minutes,
         } => {
+            let line = format!("{}{}{}/", prefix, connector, name);
+            let line_width = line.width();
+            let padding = if line_width < max_width {
+                max_width - line_width
+            } else {
+                1 // At least 1 space
+            };
             output.push_str(&format!(
-                "{}{}{:40} {:>6} min\n",
-                prefix,
-                connector,
-                format!("{}/", name),
+                "{}{} {:>6} min\n",
+                line,
+                " ".repeat(padding),
                 total_read_time_minutes
             ));
 
             let new_prefix = format!("{}{}", prefix, extension);
             for (i, child) in children.iter().enumerate() {
                 let child_is_last = i == children.len() - 1;
-                render_node(child, &new_prefix, child_is_last, output);
+                render_node(child, &new_prefix, child_is_last, max_width, output);
             }
         }
     }
