@@ -177,7 +177,7 @@ Final paragraph."#;
         // Should count: Title, Some, introduction, text, Section, Here, is, a, link, and, some, Final, paragraph
         // = 13 words (excluding code block and inline code)
         assert!(
-            word_count >= 10 && word_count <= 15,
+            (10..=15).contains(&word_count),
             "Word count was {}",
             word_count
         );
